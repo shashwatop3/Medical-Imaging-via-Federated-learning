@@ -4,6 +4,7 @@
 # Un-ignore the following
 !/.gitignore
 !/deploy-*.sh
+!/README.md
 
 # Un-ignore directories and their contents
 !/halelab/
