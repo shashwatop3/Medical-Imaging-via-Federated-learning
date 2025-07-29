@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# But keep these files and directories
+!/.gitignore
+!/halelab/
+!/k8s/
+!/deploy-*.sh
