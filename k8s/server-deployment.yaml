@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fl-server
+  namespace: halelab-fl
+  labels:
+    app: fl-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fl-server
+  template:
+    metadata:
+      labels:
+        app: fl-server
+    spec:
+      containers:
+      - name: fl-server
+        image: gcr.io/moonlit-oven-464819-k8/halelab-federated-ssl
+        ports:
+        - containerPort: 8080
+          name: flower-port
+        env:
+        - name: ROLE
+          value: "server"
+        - name: PORT
+          value: "8080"
+        - name: HOST
+          value: "0.0.0.0"
+        envFrom:
+        - configMapRef:
+            name: fl-config
+        command: ["python3"]
+        args: ["distributed_server.py", "--port", "8080", "--host", "0.0.0.0", "--num-rounds", "10", "--min-clients", "2"]
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "20Gi"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+            ephemeral-storage: "50Gi"
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fl-server-service
+  namespace: halelab-fl
+spec:
+  selector:
+    app: fl-server
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: flower-port
+  type: ClusterIP

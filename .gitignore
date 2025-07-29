@@ -1,8 +1,12 @@
-# Ignore everything
+# Ignore everything except specified files and directories
 *
 
-# But keep these files and directories
+# Un-ignore the following
 !/.gitignore
-!/halelab/
-!/k8s/
 !/deploy-*.sh
+
+# Un-ignore directories and their contents
+!/halelab/
+!/halelab/**
+!/k8s/
+!/k8s/**

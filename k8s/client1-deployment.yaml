@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fl-client-1
+  namespace: halelab-fl
+  labels:
+    app: fl-client-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fl-client-1
+  template:
+    metadata:
+      labels:
+        app: fl-client-1
+    spec:
+      containers:
+      - name: fl-client-1
+        image: gcr.io/moonlit-oven-464819-k8/halelab-federated-ssl
+        env:
+        - name: ROLE
+          value: "client"
+        - name: CLIENT_ID
+          value: "1"
+        - name: SSL_TASK
+          value: "rotation"
+        - name: SERVER_ADDRESS
+          value: "fl-server-service.halelab-fl.svc.cluster.local:8080"
+        - name: KAGGLE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: kaggle-credentials
+              key: username
+        - name: KAGGLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: kaggle-credentials
+              key: key
+        envFrom:
+        - configMapRef:
+            name: fl-config
+        command: ["python3"]
+        args: ["distributed_client.py", "--server-address", "fl-server-service.halelab-fl.svc.cluster.local:8080", "--client-id", "1", "--ssl-task", "rotation"]
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "20Gi"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+            ephemeral-storage: "50Gi"
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: kaggle-config
+          mountPath: /root/.kaggle
+      volumes:
+      - name: logs
+        emptyDir: {}
+      - name: kaggle-config
+        emptyDir: {}

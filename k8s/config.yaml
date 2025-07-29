@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fl-config
+  namespace: halelab-fl
+data:
+  NUM_ROUNDS: "10"
+  MIN_CLIENTS: "2"
+  LOG_LEVEL: "INFO"
+  STRATEGY_TYPE: "MultiTaskSSL"
