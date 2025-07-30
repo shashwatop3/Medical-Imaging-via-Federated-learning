@@ -1,13 +1,15 @@
-# Ignore everything except specified files and directories
-*
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-selfcheck.json
 
-# Un-ignore the following
-!/.gitignore
-!/deploy-*.sh
-!/README.md
+# OS
+.DS_Store
 
-# Un-ignore directories and their contents
-!/halelab/
-!/halelab/**
-!/k8s/
-!/k8s/**
+# Other
+KUBERNETES_ARCHITECTURE.md
