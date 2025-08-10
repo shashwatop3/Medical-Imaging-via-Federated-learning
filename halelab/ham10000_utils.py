@@ -69,10 +69,7 @@ class HAM10000Dataset(Dataset):
                 view2 = augment_transform(image)
                 return (view1, view2), 0
                 
-            elif self.ssl_task == 'jigsaw':
-                image = self.transform(image)
-                perm_idx = np.random.randint(0, 24)
-                return image, perm_idx
+            
             
             else:
                 image = self.transform(image)

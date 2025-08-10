@@ -1,0 +1,28 @@
+graph TD
+    subgraph "Base Model"
+        A[Input Image] --> B(ResNet50 Backbone);
+        B --> B_out[2048 features];
+    end
+
+    subgraph "SSL Models (one of these is used on a client)"
+        direction LR
+        subgraph "Contrastive SSL"
+            B_out --> C1(Shared Head) --> C2(Contrastive Head) --> C3(Normalized Projections);
+        end
+        subgraph "Rotation SSL"
+            B_out --> D1(Shared Head) --> D2(Rotation Head) --> D3(Rotation Logits);
+        end
+    end
+
+    subgraph "Downstream Model"
+        F1(Classifier Head) --> F2(Class Logits);
+    end
+
+    C1 -- "if Contrastive" --> F1
+    D1 -- "if Rotation" --> F1
+
+
+    subgraph "Federated Parameters"
+        style C1 fill:#f9f,stroke:#333,stroke-width:2px
+        style D1 fill:#f9f,stroke:#333,stroke-width:2px
+    end

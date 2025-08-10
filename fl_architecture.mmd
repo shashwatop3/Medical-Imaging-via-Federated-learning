@@ -1,0 +1,23 @@
+graph TD
+    subgraph "Federated Learning System"
+        Server[Flower Server]
+        subgraph "Clients"
+            Client1[Client 1: Rotation Task]
+            Client2[Client 2: Contrastive Task]
+            ClientN[Client N: ...]
+        end
+    end
+
+    Server -->|Send Parameters| Client1
+    Server -->|Send Parameters| Client2
+    Server -->|Send Parameters| ClientN
+
+    Client1 -->|Local Training| Client1
+    Client2 -->|Local Training| Client2
+    ClientN -->|Local Training| ClientN
+
+    Client1 -->|Send Updates| Server
+    Client2 -->|Send Updates| Server
+    ClientN -->|Send Updates| Server
+
+    Server -->|Aggregate| Server

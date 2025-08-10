@@ -106,7 +106,7 @@ class FedSSLStrategy(FedAvg):
         
         ssl_losses = []
         ssl_accuracies = []
-        task_counts = {"contrastive": 0, "rotation": 0, "jigsaw": 0}
+        task_counts = {"contrastive": 0, "rotation": 0}
         
         for _, fit_res in results:
             if "ssl_train_loss" in fit_res.metrics:
@@ -340,7 +340,7 @@ class MultiTaskSSLStrategy(FedAvg):
         if not results:
             return None, {}
         
-        task_results = {"contrastive": [], "rotation": [], "jigsaw": []}
+        task_results = {"contrastive": [], "rotation": []}
         
         for client_proxy, fit_res in results:
             task_type = fit_res.metrics.get("ssl_task", "contrastive")
@@ -424,7 +424,7 @@ class MultiTaskSSLStrategy(FedAvg):
         
         ssl_losses = []
         ssl_accuracies = []
-        task_counts = {"contrastive": 0, "rotation": 0, "jigsaw": 0}
+        task_counts = {"contrastive": 0, "rotation": 0}
         
         for _, fit_res in results:
             if "ssl_train_loss" in fit_res.metrics:

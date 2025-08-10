@@ -155,17 +155,7 @@ def evaluate_ssl(model, dataloader, device, task_type):
                 correct = (predicted == rotation_labels).sum().item()
                 metric = correct / rotation_labels.size(0)
                 
-            elif task_type == "jigsaw":
-                shuffled_images, perm_labels = data
-                shuffled_images, perm_labels = shuffled_images.to(device), perm_labels.to(device)
-                
-                outputs = model(shuffled_images)
-                
-                loss = nn.CrossEntropyLoss()(outputs, perm_labels)
-                
-                _, predicted = torch.max(outputs.data, 1)
-                correct = (predicted == perm_labels).sum().item()
-                metric = correct / perm_labels.size(0)
+            
                 
             else:
                 raise ValueError(f"Unknown SSL task type: {task_type}")

@@ -24,7 +24,7 @@ def main():
     parser.add_argument('--server-address', type=str, required=True, help='FL server address')
     parser.add_argument('--client-id', type=int, required=True, help='Client ID')
     parser.add_argument('--ssl-task', type=str, required=True, 
-                       choices=['rotation', 'contrastive', 'jigsaw'],
+                       choices=['rotation', 'contrastive'],
                        help='SSL task type')
     
     args = parser.parse_args()

@@ -19,6 +19,6 @@ __all__ = [
     'get_ssl_model', 'get_ssl_weights', 'set_ssl_weights',
     'train_ssl', 'evaluate_ssl', 'load_ssl_data',
     'DownstreamClassificationModel', 'ContrastiveSSLModel',
-    'RotationSSLModel', 'JigsawSSLModel',
+    'RotationSSLModel',
     'create_ssl_dataloader', 'create_downstream_dataloader', 'partition_data'
 ]

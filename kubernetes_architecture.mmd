@@ -1,0 +1,41 @@
+graph TD
+    subgraph "Google Kubernetes Engine (GKE) Cluster"
+        subgraph "Node 1"
+            ServerDeployment[Server Deployment]
+            ServerPod[Pod: Flower Server]
+            ServerDeployment --> ServerPod
+        end
+
+        subgraph "Node 2"
+            Client1Deployment[Client 1 Deployment]
+            Client1Pod[Pod: FL Client 1]
+            Client1Deployment --> Client1Pod
+        end
+
+        subgraph "Node 3"
+            Client2Deployment[Client 2 Deployment]
+            Client2Pod[Pod: FL Client 2]
+            Client2Deployment --> Client2Pod
+        end
+
+        subgraph "Networking"
+            ServerService["Server Service (LoadBalancer)"]
+            ServerService --> ServerPod
+        end
+
+        subgraph "Configuration"
+            KaggleSecret[Kaggle Secret]
+            ConfigMap[ConfigMap]
+        end
+    end
+
+    Client1Pod -- "Connects to" --> ServerService
+    Client2Pod -- "Connects to" --> ServerService
+
+    ServerPod -- "Uses" --> KaggleSecret
+    Client1Pod -- "Uses" --> KaggleSecret
+    Client2Pod -- "Uses" --> KaggleSecret
+
+    ServerPod -- "Uses" --> ConfigMap
+    Client1Pod -- "Uses" --> ConfigMap
+    Client2Pod -- "Uses" --> ConfigMap

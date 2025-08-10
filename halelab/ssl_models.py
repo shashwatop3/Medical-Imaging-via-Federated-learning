@@ -154,58 +154,39 @@ class RotationSSLModel(nn.Module):
         self.shared_head.load_state_dict(state_dict, strict=True)
 
 
-class JigsawSSLModel(nn.Module):
-    
-    def __init__(self, pretrained=True, num_patches=9):
-        super().__init__()
-        self.backbone = FrozenResNet50Backbone(pretrained)
-        self.num_patches = num_patches
-        
-        self.jigsaw_head = nn.Sequential(
-            nn.Linear(self.backbone.feature_dim * num_patches, 1024),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(1024, 512),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(512, 1000)
-        )
-    
-    def forward(self, x):
-        batch_size = x.size(0)
-        
-        patch_features = []
-        for i in range(self.num_patches):
-            features = self.backbone(x[:, i])
-            patch_features.append(features)
-        
-        combined_features = torch.cat(patch_features, dim=1)
-        
-        jigsaw_logits = self.jigsaw_head(combined_features)
-        return jigsaw_logits
-    
-    def get_ssl_parameters(self):
-        return [val.cpu().numpy() for name, val in self.jigsaw_head.state_dict().items()]
-    
-    def set_ssl_parameters(self, parameters):
-        param_names = list(self.jigsaw_head.state_dict().keys())
-        params_dict = zip(param_names, parameters)
-        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-        self.jigsaw_head.load_state_dict(state_dict, strict=False)
+
 
 
 class DownstreamClassificationModel(nn.Module):
     
-    def __init__(self, ssl_model, num_classes, freeze_backbone=True):
+    def __init__(self, ssl_model, num_classes, freeze_backbone=True, freeze_shared_head=True):
         super().__init__()
-        self.backbone = ssl_model.backbone
+        self.ssl_model = ssl_model
         
-        if freeze_backbone:
-            for param in self.backbone.parameters():
+        if freeze_backbone and hasattr(self.ssl_model, 'backbone'):
+            for param in self.ssl_model.backbone.parameters():
                 param.requires_grad = False
-        
+
+        if freeze_shared_head and hasattr(self.ssl_model, 'shared_head'):
+            for param in self.ssl_model.shared_head.parameters():
+                param.requires_grad = False
+
+        # Determine the input layer for the classifier
+        if hasattr(self.ssl_model, 'shared_head'):
+            # Use the shared_head as the feature extractor
+            self.feature_extractor = nn.Sequential(
+                self.ssl_model.backbone,
+                self.ssl_model.shared_head
+            )
+            # The output of shared_head is 128
+            classifier_input_dim = 128
+        else:
+            
+            self.feature_extractor = self.ssl_model.backbone
+            classifier_input_dim = self.ssl_model.backbone.feature_dim
+
         self.classifier = nn.Sequential(
-            nn.Linear(self.backbone.feature_dim, 1024),
+            nn.Linear(classifier_input_dim, 1024),
             nn.ReLU(),
             nn.Dropout(0.3),
             nn.Linear(1024, 512),
@@ -218,15 +199,10 @@ class DownstreamClassificationModel(nn.Module):
             nn.ReLU(),
             nn.Linear(128, num_classes)
         )
-    
+
     def forward(self, x):
-        if hasattr(self.backbone, 'backbone'):
-            features = self.backbone(x)
-        else:
-            with torch.no_grad():
-                features = self.backbone(x)
-            features = features.view(features.size(0), -1)
-        
+        features = self.feature_extractor(x)
+        features = features.view(features.size(0), -1)
         logits = self.classifier(features)
         return logits
 
@@ -236,8 +212,6 @@ def create_ssl_model(task_type, **kwargs):
         return RotationSSLModel(**kwargs)
     elif task_type == "contrastive":
         return ContrastiveSSLModel(**kwargs)
-    elif task_type == "jigsaw":
-        return JigsawSSLModel(**kwargs)
     else:
         raise ValueError(f"Unknown SSL task type: {task_type}")
 

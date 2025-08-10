@@ -214,8 +214,7 @@ def create_ssl_dataloader(image_paths, task_type, batch_size=32, shuffle=True,
         dataset = RotationDataset(image_paths, base_transform)
     elif task_type == "contrastive":
         dataset = ContrastiveDataset(image_paths, base_transform)
-    elif task_type == "jigsaw":
-        dataset = JigsawDataset(image_paths, base_transform, **kwargs)
+    
     else:
         raise ValueError(f"Unknown SSL task type: {task_type}")
     

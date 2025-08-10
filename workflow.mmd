@@ -1,0 +1,20 @@
+graph TD
+    A[Start] --> B{Data Preparation};
+    B --> B1[Load HAM10000 Dataset];
+    B1 --> B2[Create SSL DataLoaders for each client];
+    B2 --> C{Federated SSL Training};
+    C --> C1[Server initializes global model];
+    C1 --> C2[Server selects clients for a round];
+    C2 --> C3[Selected clients receive global model];
+    C3 --> C4[Clients train model on their local SSL task];
+    C4 --> C5[Clients send updated model back to server];
+    C5 --> C6[Server aggregates client models];
+    C6 --> C7{Repeat for N rounds};
+    C7 -- Yes --> C2;
+    C7 -- No --> D{Downstream Task Evaluation};
+    D --> D1[Load trained SSL model backbone];
+    D1 --> D2[Train a classifier on top of the frozen backbone];
+    D2 --> D3[Evaluate classifier on test data];
+    D3 --> E{Deployment};
+    E --> E1[Deploy server and clients on Kubernetes];
+    E1 --> F[End];

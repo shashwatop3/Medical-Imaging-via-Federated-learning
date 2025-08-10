@@ -12,7 +12,7 @@ def multi_task_ssl_server_fn():
     print("SSL Tasks:")
     print("   Client 1: Contrastive Learning (SimCLR)")
     print("   Client 2: Rotation Prediction")
-    print("   Client 3: Jigsaw Puzzle Solving")
+    
     print("=" * 60)
     
     strategy = create_ssl_strategy(
